@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="passwordfield" status="released" xmlns="http://getsymphony.com/schemas/extension/1.0">
+    <name>Password Field</name>
+    <description>A field for Symphony CMS that securely stores passwords.</description>
+    <repo type="github">https://github.com/pointybeard/passwordfield</repo>
+    <types>
+        <type>Field Types</type>
+    </types>
+    <authors>
+        <author>
+            <name github="pointybeard" symphony="team">Alannah Kearney</name>
+            <website>http://alannahkearney.com</website>
+        </author>
+        <author>
+            <name>Symphony Community</name>
+            <website>https://github.com/symphonycms/members/blob/master/fields/field.memberpassword.php#blob_contributors_box</website>
+        </author>
+    </authors>
+    <releases>
+        <release version="1.0" date="2020-11-05" min="2.7.*">
+            Initial release
+        </release>
+    </releases>
+</extension>
