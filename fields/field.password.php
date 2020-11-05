@@ -138,10 +138,10 @@ class fieldPassword extends Field implements ExportableField, ImportableField
 
         return Symphony::Database()->fetchRow(0, sprintf("
             SELECT f.password, f.strength, f.length
-            FROM `tbl_entries_data_{%d}` AS `f`
-            WHERE f.entry_id = '{%d}'
+            FROM `tbl_entries_data_%d` AS `f`
+            WHERE f.entry_id = '%d'
             LIMIT 1
-        "), $fieldId, (int) $entryId);
+        ", $fieldId, (int) $entryId));
     }
 
     public static function findCodeExpiry()
