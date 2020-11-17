@@ -346,6 +346,10 @@ class fieldPassword extends Field implements ExportableField, ImportableField
             return [];
         }
 
+        if(false == is_array($data)) {
+            $data = ["password" => $data];
+        }
+
         $password = trim($data['password']);
 
         // We only want to run the processing if the password has been altered
