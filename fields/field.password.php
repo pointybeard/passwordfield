@@ -353,9 +353,8 @@ class fieldPassword extends Field implements ExportableField, ImportableField
         $password = trim($data['password']);
 
         // We only want to run the processing if the password has been altered
-        // or if the entry hasn't been created yet. If someone attempts to change
-        // their username, but not their password, this will be caught by checkPostFieldData
-        if (false == empty($password) || null == $entryId) {
+        // or if the entry hasn't been created yet.
+        if ((false == empty($password) && true == $this->hasPasswordBeenChanged((int)$entryId, $password)) || null == $entryId) {
             return [
                 'password' => $this->encodePassword($password),
                 'strength' => self::checkPassword($password),
@@ -364,6 +363,12 @@ class fieldPassword extends Field implements ExportableField, ImportableField
         }
 
         return $this->rememberData((int) $entryId);
+    }
+
+    private function hasPasswordBeenChanged(int $entryId, string $password): bool
+    {
+        $existing = $this->rememberData((int) $entryId);
+        return (bool)($existing["password"] != $password);
     }
 
     /*-------------------------------------------------------------------------
