@@ -25,10 +25,21 @@ class fieldPassword extends Field implements ExportableField, ImportableField
 {
     protected static $strengths = [];
 
+    public const STRENGTH_WEAK = "weak";
+    public const STRENGTH_GOOD = "good";
+    public const STRENGTH_STRONG = "strong";
+
+    protected static $patterns = [
+        "alphalower" => '/[a-z]/',
+        "alphaupper" => '/[A-Z]/',
+        "digit" => '/[0-9]/',
+        "special" => '/[!"#$%&\'()*+,\-.\/:;<=>?@\[\\\\\]^_`{\|}~]/',
+    ];
+
     protected static $strengthMap = [
-        'weak' => [0, 1],
-        'good' => [2],
-        'strong' => [3, 4],
+        self::STRENGTH_WEAK => [0, 1],
+        self::STRENGTH_GOOD => [2],
+        self::STRENGTH_STRONG => [3, 4],
     ];
 
     /*-------------------------------------------------------------------------
@@ -42,13 +53,13 @@ class fieldPassword extends Field implements ExportableField, ImportableField
         $this->_required = true;
 
         $this->set('required', 'yes');
-        $this->set('length', '6');
-        $this->set('strength', 'good');
+        $this->set('length', '8');
+        $this->set('strength', self::STRENGTH_GOOD);
 
         self::$strengths = [
-            ['weak', false, __('Weak')],
-            ['good', false, __('Good')],
-            ['strong', false, __('Strong')],
+            [self::STRENGTH_WEAK, false, __('Weak')],
+            [self::STRENGTH_GOOD, false, __('Good')],
+            [self::STRENGTH_STRONG, false, __('Strong')],
         ];
     }
 
@@ -74,7 +85,7 @@ class fieldPassword extends Field implements ExportableField, ImportableField
               `entry_id` int(11) unsigned NOT NULL,
               `password` varchar(150) default NULL,
               `length` tinyint(2) NOT NULL,
-              `strength` enum('weak', 'good', 'strong') NOT NULL,
+              `strength` enum('".implode("','", array_keys(self::getStrengthMap()))."') NOT NULL,
               PRIMARY KEY  (`id`),
               KEY `entry_id` (`entry_id`),
               KEY `length` (`length`),
@@ -86,6 +97,16 @@ class fieldPassword extends Field implements ExportableField, ImportableField
     /*-------------------------------------------------------------------------
         Utilities:
     -------------------------------------------------------------------------*/
+
+    public static function getPatterns(): array
+    {
+        return self::$patterns;
+    }
+
+    public static function getStrengthMap(): array
+    {
+        return self::$strengthMap;
+    }
 
     /**
      * Given a string, this function will encode the password
@@ -99,20 +120,14 @@ class fieldPassword extends Field implements ExportableField, ImportableField
     protected static function checkPassword(string $password): ?string
     {
         $strength = 0;
-        $patterns = [
-            '/[a-z]/',
-            '/[A-Z]/',
-            '/[0-9]/',
-            '/[¬!"£$%^&*()`{}\[\]:@~;\'#<>?,.\/\\-=_+\|]/',
-        ];
 
-        foreach ($patterns as $pattern) {
+        foreach (self::getPatterns() as $pattern) {
             if (true == preg_match($pattern, $password, $matches)) {
                 ++$strength;
             }
         }
 
-        foreach (self::$strengthMap as $key => $values) {
+        foreach (self::getStrengthMap() as $key => $values) {
             if (false == in_array($strength, $values)) {
                 continue;
             }
@@ -120,12 +135,12 @@ class fieldPassword extends Field implements ExportableField, ImportableField
             return $key;
         }
 
-        return null;
+        return self::STRENGTH_WEAK;
     }
 
     protected static function compareStrength(string $a, string $b): bool
     {
-        if (array_sum(self::$strengthMap[$a]) >= array_sum(self::$strengthMap[$b])) {
+        if (array_sum(self::getStrengthMap()[$a]) >= array_sum(self::getStrengthMap()[$b])) {
             return true;
         }
 
